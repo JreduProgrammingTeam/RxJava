@@ -31,12 +31,20 @@ public final class ObservableCreate<T> extends Observable<T> {
         this.source = source;
     }
 
+    /**
+     * 这里是开始绑定的操作,所有继承自 Observable 的类都要去做这件事
+     * @param observer the incoming Observer, never null
+     */
     @Override
     protected void subscribeActual(Observer<? super T> observer) {
+        // 创建一个发射器
         CreateEmitter<T> parent = new CreateEmitter<T>(observer);
+        // 观察者持有发射器,实现绑定开始,同时可以解除绑定
         observer.onSubscribe(parent);
-
+        // 到这里 观察者 和 发射器 已经互相持有. 观察者已经掌握了去观察 被观察者 的能力
+        // 但是这里还不能观察,因为 被观察者 还没有和 发射器 结合,观察者有消息不能发出
         try {
+            // 被观察者 与 发射器 结合,被观察者拿到了 发射器,就能发出消息了
             source.subscribe(parent);
         } catch (Throwable ex) {
             Exceptions.throwIfFatal(ex);
@@ -44,6 +52,9 @@ public final class ObservableCreate<T> extends Observable<T> {
         }
     }
 
+    /**
+     * 创建发射机,这里发射器持有观察者,所以发射器可以将内容给到观察者
+     */
     static final class CreateEmitter<T>
     extends AtomicReference<Disposable>
     implements ObservableEmitter<T>, Disposable {
@@ -63,6 +74,7 @@ public final class ObservableCreate<T> extends Observable<T> {
                 onError(new NullPointerException("onNext called with null. Null values are generally not allowed in 2.x operators and sources."));
                 return;
             }
+            // 如果还绑定着,就发射给被观察者
             if (!isDisposed()) {
                 observer.onNext(t);
             }

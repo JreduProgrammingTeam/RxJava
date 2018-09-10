@@ -37,6 +37,7 @@ public final class ObservableInterval extends Observable<Long> {
 
     @Override
     public void subscribeActual(Observer<? super Long> s) {
+        // 创建特殊的观察者
         IntervalObserver is = new IntervalObserver(s);
         s.onSubscribe(is);
 

@@ -15,6 +15,7 @@ package io.reactivex.plugins;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.concurrent.*;
 
+import com.sun.xml.internal.messaging.saaj.packaging.mime.util.OutputUtil;
 import org.reactivestreams.Subscriber;
 
 import io.reactivex.*;
@@ -467,6 +468,7 @@ public final class RxJavaPlugins {
         ObjectHelper.requireNonNull(run, "run is null");
 
         Function<? super Runnable, ? extends Runnable> f = onScheduleHandler;
+        System.out.println((f == null) +"");
         if (f == null) {
             return run;
         }
@@ -936,6 +938,7 @@ public final class RxJavaPlugins {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @NonNull
     public static <T> Observer<? super T> onSubscribe(@NonNull Observable<T> source, @NonNull Observer<? super T> observer) {
+        // 如果设定了自定义的挂钩方法,可以在这里执行.如果没有则为默认
         BiFunction<? super Observable, ? super Observer, ? extends Observer> f = onObservableSubscribe;
         if (f != null) {
             return apply(f, source, observer);

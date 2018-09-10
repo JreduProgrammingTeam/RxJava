@@ -1559,7 +1559,9 @@ public abstract class Observable<T> implements ObservableSource<T> {
     @CheckReturnValue
     @SchedulerSupport(SchedulerSupport.NONE)
     public static <T> Observable<T> create(ObservableOnSubscribe<T> source) {
+        // 在这里创建一个源头(可被观察者)
         ObjectHelper.requireNonNull(source, "source is null");
+        // 装配一个可被观察者,这里传入的是发射器的操作方法
         return RxJavaPlugins.onAssembly(new ObservableCreate<T>(source));
     }
 
@@ -12013,15 +12015,17 @@ public abstract class Observable<T> implements ObservableSource<T> {
         return ls;
     }
 
+    // 将Observable (源头 -- 可以被观察者) 与 Observer (终点 -- 观察者) 结合
     @SchedulerSupport(SchedulerSupport.NONE)
     @Override
     public final void subscribe(Observer<? super T> observer) {
         ObjectHelper.requireNonNull(observer, "observer is null");
         try {
+            // hook 方法
             observer = RxJavaPlugins.onSubscribe(this, observer);
 
             ObjectHelper.requireNonNull(observer, "Plugin returned null Observer");
-
+            // 这里要开始绑定了
             subscribeActual(observer);
         } catch (NullPointerException e) { // NOPMD
             throw e;

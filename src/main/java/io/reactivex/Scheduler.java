@@ -227,6 +227,7 @@ public abstract class Scheduler {
      */
     @NonNull
     public Disposable schedulePeriodicallyDirect(@NonNull Runnable run, long initialDelay, long period, @NonNull TimeUnit unit) {
+
         final Worker w = createWorker();
 
         final Runnable decoratedRun = RxJavaPlugins.onSchedule(run);
@@ -234,6 +235,7 @@ public abstract class Scheduler {
         PeriodicDirectTask periodicTask = new PeriodicDirectTask(decoratedRun, w);
 
         Disposable d = w.schedulePeriodically(periodicTask, initialDelay, period, unit);
+        System.out.println(d == EmptyDisposable.INSTANCE);
         if (d == EmptyDisposable.INSTANCE) {
             return d;
         }
@@ -431,8 +433,9 @@ public abstract class Scheduler {
             final long firstNowNanoseconds = now(TimeUnit.NANOSECONDS);
             final long firstStartInNanoseconds = firstNowNanoseconds + unit.toNanos(initialDelay);
 
-            Disposable d = schedule(new PeriodicTask(firstStartInNanoseconds, decoratedRun, firstNowNanoseconds, sd,
-                    periodInNanoseconds), initialDelay, unit);
+            Disposable d = schedule(
+                    new PeriodicTask(firstStartInNanoseconds, decoratedRun, firstNowNanoseconds, sd, periodInNanoseconds),
+                    initialDelay, unit);
 
             if (d == EmptyDisposable.INSTANCE) {
                 return d;

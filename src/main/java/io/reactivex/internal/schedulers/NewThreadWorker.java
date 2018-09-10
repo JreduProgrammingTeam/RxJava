@@ -86,6 +86,7 @@ public class NewThreadWorker extends Scheduler.Worker implements Disposable {
      * @return the ScheduledRunnable instance
      */
     public Disposable schedulePeriodicallyDirect(Runnable run, long initialDelay, long period, TimeUnit unit) {
+        // hook 相关
         final Runnable decoratedRun = RxJavaPlugins.onSchedule(run);
         if (period <= 0L) {
 
@@ -108,6 +109,7 @@ public class NewThreadWorker extends Scheduler.Worker implements Disposable {
         ScheduledDirectPeriodicTask task = new ScheduledDirectPeriodicTask(decoratedRun);
         try {
             Future<?> f = executor.scheduleAtFixedRate(task, initialDelay, period, unit);
+            // 设定未来
             task.setFuture(f);
             return task;
         } catch (RejectedExecutionException ex) {

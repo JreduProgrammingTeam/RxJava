@@ -115,6 +115,8 @@ public enum DisposableHelper implements Disposable {
      * @param field the target field
      * @return true if the current thread managed to dispose the Disposable
      */
+    // 这里是将 原子操作什么什么 的东西 里面的 标识 disposable 更替为 DisposableHelper 中枚举的 DISPOSED
+    // 这样 再做比对的时候,就能够 指向的同一个内存地址
     public static boolean dispose(AtomicReference<Disposable> field) {
         Disposable current = field.get();
         Disposable d = DISPOSED;
